@@ -14,17 +14,26 @@ gsettings set org.gnome.desktop.default-applications.terminal exec gnome-termina
 
 echo "[+] Cloning legacy Kali themes from GitLab..."
 TEMP_DIR=$(mktemp -d)
-git clone --depth 1 https://gitlab.com/kalilinux/packages/kali-themes.git "$TEMP_DIR"
+cd "$TEMP_DIR"
+git clone https://gitlab.com/kalilinux/packages/kali-themes.git
+git checkout 0dbeed74cc49da312b1fd73760f2da115b577ea7
 
 echo "[+] Installing GTK themes..."
 mkdir -p "$HOME/.themes"
 cp -r "$TEMP_DIR/Window-Theme/Kali-Dark" "$HOME/.themes/"
 cp -r "$TEMP_DIR/Window-Theme/Kali-Light" "$HOME/.themes/"
+cp -r "$TEMP_DIR/Window-Theme/Kali-X-Dark" "$HOME/.themes/"
+cp -r "$TEMP_DIR/Window-Theme/Kali-X" "$HOME/.themes/"
 
-echo "[+] Installing Icon themes..."
+echo "[+] Installing icon themes..."
 mkdir -p "$HOME/.icons"
 cp -r "$TEMP_DIR/Icon-Theme/Flat-Remix-Blue-Dark" "$HOME/.icons/"
 cp -r "$TEMP_DIR/Icon-Theme/Flat-Remix-Blue-Light" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Vibrancy-Kali-Dark" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Vibrancy-Kali-Full-Dark" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Vibrancy-Kali" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Zen-Kali-Dark" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Zen-Kali" "$HOME/.icons/"
 rm -rf "$TEMP_DIR"
 
 echo "[+] Applying theme settings..."
