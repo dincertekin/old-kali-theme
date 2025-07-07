@@ -6,17 +6,16 @@ echo "[+] Updating and installing required packages..."
 sudo apt update
 sudo apt install -y menulibre gnome-tweaks gnome-shell-extensions gnome-shell-extension-manager gnome-terminal dconf-cli git curl unzip wget
 
-echo "[+] Switching to Bash shell with legacy BackTrack prompt..."
-kali-tweaks --set-shell backtrack --set-login-shell bash
+# echo "[+] Switching to Bash shell with legacy BackTrack prompt..."
+# kali-tweaks --set-shell backtrack --set-login-shell bash
 
 echo "[+] Fixing right-click 'Open in Terminal'..."
 gsettings set org.gnome.desktop.default-applications.terminal exec gnome-terminal
 
 echo "[+] Cloning legacy Kali themes from GitLab..."
 TEMP_DIR=$(mktemp -d)
-cd "$TEMP_DIR"
-git clone https://gitlab.com/kalilinux/packages/kali-themes.git
-git checkout 0dbeed74cc49da312b1fd73760f2da115b577ea7
+git clone https://gitlab.com/kalilinux/packages/kali-themes.git "$TEMP_DIR"
+# git checkout 0dbeed74cc49da312b1fd73760f2da115b577ea7
 
 echo "[+] Installing GTK themes..."
 mkdir -p "$HOME/.themes"
