@@ -1,6 +1,6 @@
 # old-kali-theme
 
-A simple automation script to bring back the classic **Kali Linux look**, including old icons, themes, and configurations — as seen in earlier Kali releases.
+A simple automation script to bring back the classic **Kali Linux look**, including old icons, themes, and configurations as seen in earlier Kali releases.
 
 ## About
 
