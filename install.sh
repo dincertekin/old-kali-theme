@@ -2,46 +2,68 @@
 
 set -e
 
-echo "[+] Installing required packages..."
+echo "[+] Updating and installing required packages..."
 sudo apt update
-sudo apt install -y menulibre gnome-tweaks gnome-shell-extensions gnome-shell-extension-prefs
+sudo apt install -y menulibre gnome-tweaks gnome-shell-extensions gnome-shell-extension-manager gnome-terminal dconf-cli git curl unzip wget
 
-echo "[+] Applying bash shell settings using kali-tweaks..."
+echo "[+] Switching to Bash shell with legacy BackTrack prompt..."
 kali-tweaks --set-shell backtrack --set-login-shell bash
 
-echo "[+] Fixing 'Open in Terminal' for Desktop..."
+echo "[+] Fixing right-click 'Open in Terminal'..."
 gsettings set org.gnome.desktop.default-applications.terminal exec gnome-terminal
 
-echo "[+] Extracting legacy themes and icons..."
-THEMES_DIR="$HOME/.themes"
-ICONS_DIR="$HOME/.icons"
+echo "[+] Cloning legacy Kali themes from GitLab..."
+TEMP_DIR=$(mktemp -d)
+git clone --depth 1 https://gitlab.com/kalilinux/packages/kali-themes.git "$TEMP_DIR"
 
-mkdir -p "$THEMES_DIR" "$ICONS_DIR"
+echo "[+] Installing GTK themes..."
+mkdir -p "$HOME/.themes"
+cp -r "$TEMP_DIR/Window-Theme/Kali-Dark" "$HOME/.themes/"
+cp -r "$TEMP_DIR/Window-Theme/Kali-Light" "$HOME/.themes/"
 
-# Replace with actual theme/icon archive names
-echo "[+] Copying themes and icons from local 'files/' folder..."
-for file in ./files/*.zip; do
-    unzip -o "$file" -d "$HOME/.local/share/"
-done
+echo "[+] Installing Icon themes..."
+mkdir -p "$HOME/.icons"
+cp -r "$TEMP_DIR/Icon-Theme/Flat-Remix-Blue-Dark" "$HOME/.icons/"
+cp -r "$TEMP_DIR/Icon-Theme/Flat-Remix-Blue-Light" "$HOME/.icons/"
+rm -rf "$TEMP_DIR"
 
-echo "[+] Applying GTK and icon themes..."
+echo "[+] Applying theme settings..."
 gsettings set org.gnome.desktop.interface gtk-theme "Kali-Dark"
 gsettings set org.gnome.desktop.wm.preferences theme "Kali-Dark"
 gsettings set org.gnome.desktop.interface icon-theme "Flat-Remix-Blue-Dark"
 
-echo "[+] Setting fonts..."
+echo "[+] Setting font preferences..."
 gsettings set org.gnome.desktop.interface font-name "Cantarell 11"
 gsettings set org.gnome.desktop.interface document-font-name "Sans 11"
 gsettings set org.gnome.desktop.interface monospace-font-name "Monospace 11"
 
-echo "[+] Installing GNOME extensions..."
-echo "Please open Firefox/Chromium and visit: https://extensions.gnome.org"
-echo "Install: 'Extension Manager' and 'Dash to Dock'"
-echo "Then configure Dash to Dock manually via GNOME Tweaks."
+echo "[+] Installing and enabling Dash-to-Dock extension..."
+EXT_DIR="$HOME/.local/share/gnome-shell/extensions"
+mkdir -p "$EXT_DIR"
 
-echo "[+] Reminder: Customize terminal icon using 'menulibre' after script finishes."
-echo "Do not run menulibre as root — it won't work!"
+DASH_DOCK_UUID="dash-to-dock@micxgx.gmail.com"
+DASH_DOCK_ZIP="/tmp/dash-to-dock.zip"
 
-echo "[+] Optional: Set your desired wallpaper manually from GNOME Settings."
+wget -O "$DASH_DOCK_ZIP" "https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v81.shell-extension.zip"
+unzip -q "$DASH_DOCK_ZIP" -d "$EXT_DIR/$DASH_DOCK_UUID"
+gnome-extensions enable "$DASH_DOCK_UUID"
 
-echo "[✔] Done! Log out and log back in for all changes to fully apply."
+echo "[+] Configuring Dash-to-Dock..."
+dconf write /org/gnome/shell/extensions/dash-to-dock/dock-position "'BOTTOM'"
+dconf write /org/gnome/shell/extensions/dash-to-dock/extend-height false
+dconf write /org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 36
+dconf write /org/gnome/shell/extensions/dash-to-dock/show-mounts false
+dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide true
+dconf write /org/gnome/shell/extensions/dash-to-dock/click-action "'focus-or-previews'"
+dconf write /org/gnome/shell/extensions/dash-to-dock/custom-theme-shrink true
+
+echo "[+] Setting wallpaper..."
+WALLPAPER_URL="https://gitlab.com/kalilinux/packages/kali-wallpapers/-/raw/kali/master/kali.jpg"
+WALLPAPER_PATH="$HOME/Pictures/kali-wallpaper.jpg"
+wget -O "$WALLPAPER_PATH" "$WALLPAPER_URL"
+gsettings set org.gnome.desktop.background picture-uri "file://$WALLPAPER_PATH"
+
+echo "[+] NOTE: Changing application icons (e.g., terminal) must be done manually via 'menulibre'."
+echo "Do NOT run menulibre as root."
+
+echo "[✔] Done! Please log out and log back in to apply all settings."
